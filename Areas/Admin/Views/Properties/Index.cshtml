@@ -1,0 +1,199 @@
+@model IEnumerable<RealEstatePortal.Web.Models.Property>
+@{
+    ViewData["Title"] = "Manage Properties Inventory";
+}
+
+<!-- Header Banner -->
+<div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div>
+            <h4 class="fw-bold mb-1 text-dark"><i class="bi bi-houses-fill text-primary me-2"></i> Real Estate Property Management</h4>
+            <p class="text-muted mb-0">Full CRUD operations, live status toggle (Sold &harr; Unsold/Available), and asset listings.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="Create" class="btn btn-primary rounded-pill px-3 shadow-sm">
+                <i class="bi bi-plus-lg me-1"></i> Add New Property
+            </a>
+            <a asp-area="Admin" asp-controller="Reports" asp-action="Ledger" class="btn btn-outline-secondary rounded-pill px-3">
+                <i class="bi bi-journal-text me-1"></i> Status Ledger
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Filters Bar -->
+<div class="card border-0 shadow-sm rounded-4 p-3 mb-4 bg-white">
+    <form method="get" asp-action="Index" class="row g-2 align-items-center">
+        <div class="col-md-4">
+            <input type="text" name="search" value="@ViewBag.CurrentSearch" class="form-control form-control-sm" placeholder="Search by title, city, or agent...">
+        </div>
+        <div class="col-md-3">
+            <select name="status" class="form-select form-select-sm" asp-items="Html.GetEnumSelectList<PropertyStatus>()">
+                <option value="">All Statuses</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select name="listingType" class="form-select form-select-sm" asp-items="Html.GetEnumSelectList<ListingType>()">
+                <option value="">All Listing Types</option>
+            </select>
+        </div>
+        <div class="col-md-2 d-flex gap-1">
+            <button type="submit" class="btn btn-primary btn-sm rounded-pill flex-fill">
+                <i class="bi bi-search me-1"></i> Search
+            </button>
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm rounded-pill">
+                <i class="bi bi-arrow-counterclockwise"></i>
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- Properties Table -->
+<div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th style="width: 80px;">Image</th>
+                    <th>Property Title & Location</th>
+                    <th>Type</th>
+                    <th>Pricing</th>
+                    <th>Token Escrow</th>
+                    <th>Agent</th>
+                    <th>Current Status</th>
+                    <th class="text-end pe-4">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <img src="@item.PrimaryImageUrl" class="rounded-3 shadow-sm" style="width: 70px; height: 50px; object-fit: cover;" alt="@item.Title" onerror="this.src='https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=150&q=80'">
+                        </td>
+                        <td>
+                            <div class="fw-bold text-dark">
+                                <a asp-action="Details" asp-route-id="@item.Id" class="text-dark text-decoration-none hover-primary">
+                                    @item.Title
+                                </a>
+                            </div>
+                            <div class="text-muted small">
+                                <i class="bi bi-geo-alt-fill text-danger me-1"></i> @item.City, @item.State &bull; @item.Bedrooms Beds / @item.Bathrooms Baths
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-secondary border">@item.PropertyType</span>
+                            <span class="badge bg-secondary-subtle text-secondary">@item.ListingType</span>
+                        </td>
+                        <td>
+                            <div class="fw-bold text-dark">@item.FormattedPriceWithPeriod</div>
+                            @if (item.Price >= 100000m)
+                            {
+                                <div class="text-muted" style="font-size: 11px;">₹@item.Price.ToString("N0")</div>
+                            }
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-primary border border-primary-subtle">
+                                ₹@item.TokenAmount.ToString("N0")
+                            </span>
+                        </td>
+                        <td>
+                            <div class="small fw-semibold">@item.AgentName</div>
+                            <div class="text-muted" style="font-size: 11px;">@item.CommissionRate% Comm.</div>
+                        </td>
+                        <td>
+                            @{
+                                string statusBadge = item.Status switch
+                                {
+                                    PropertyStatus.Available => "bg-success text-white",
+                                    PropertyStatus.Booked => "bg-warning text-dark",
+                                    PropertyStatus.Rented => "bg-info text-white",
+                                    PropertyStatus.Sold => "bg-danger text-white",
+                                    _ => "bg-secondary text-white"
+                                };
+                            }
+                            <div class="d-flex flex-column gap-1">
+                                <div class="dropdown">
+                                    <button class="badge @statusBadge border-0 dropdown-toggle px-3 py-2 rounded-pill fw-bold shadow-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bi bi-tag-fill me-1"></i> @item.Status
+                                    </button>
+                                    <ul class="dropdown-menu shadow border-0 small">
+                                        <li><h6 class="dropdown-header">Change Property Status</h6></li>
+                                        <li>
+                                            <form asp-action="UpdateStatus" method="post">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@item.Id" />
+                                                <input type="hidden" name="status" value="@PropertyStatus.Available" />
+                                                <button type="submit" class="dropdown-item text-success fw-bold">
+                                                    <i class="bi bi-check-circle-fill me-2 text-success"></i> Available (Unsold / Active)
+                                                </button>
+                                            </form>
+                                        </li>
+                                        <li>
+                                            <form asp-action="UpdateStatus" method="post">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@item.Id" />
+                                                <input type="hidden" name="status" value="@PropertyStatus.Booked" />
+                                                <button type="submit" class="dropdown-item text-warning fw-semibold">
+                                                    <i class="bi bi-bookmark-check me-2 text-warning"></i> Booked (Token Deposit)
+                                                </button>
+                                            </form>
+                                        </li>
+                                        <li>
+                                            <form asp-action="UpdateStatus" method="post">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@item.Id" />
+                                                <input type="hidden" name="status" value="@PropertyStatus.Rented" />
+                                                <button type="submit" class="dropdown-item text-info fw-semibold">
+                                                    <i class="bi bi-key-fill me-2 text-info"></i> Rented (Lease Agreement)
+                                                </button>
+                                            </form>
+                                        </li>
+                                        <li>
+                                            <form asp-action="UpdateStatus" method="post">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@item.Id" />
+                                                <input type="hidden" name="status" value="@PropertyStatus.Sold" />
+                                                <button type="submit" class="dropdown-item text-danger fw-semibold">
+                                                    <i class="bi bi-cash-stack me-2 text-danger"></i> Sold (Closed Deal)
+                                                </button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                @if (item.Status != PropertyStatus.Available)
+                                {
+                                    <form asp-action="UpdateStatus" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <input type="hidden" name="status" value="@PropertyStatus.Available" />
+                                        <button type="submit" class="btn btn-outline-success btn-xs rounded-pill py-0 px-2 mt-1" style="font-size: 11px;" title="Set back to Available (Unsold)">
+                                            <i class="bi bi-arrow-repeat me-1"></i> Make Unsold
+                                        </button>
+                                    </form>
+                                }
+                            </div>
+                        </td>
+                        <td class="text-end pe-4">
+                            <div class="d-flex justify-content-end gap-1">
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info rounded-pill" title="View Inquiries & Details">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary rounded-pill" title="Edit Listing">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this property?');">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill" title="Delete Listing">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

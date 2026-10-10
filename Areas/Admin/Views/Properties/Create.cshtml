@@ -1,0 +1,195 @@
+@model RealEstatePortal.Web.Areas.Admin.ViewModels.PropertyAdminVM
+@{
+    ViewData["Title"] = "Add New Property Listing";
+}
+
+<div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h4 class="fw-bold mb-1 text-dark"><i class="bi bi-plus-circle-fill text-primary me-2"></i> Create Real Estate Listing</h4>
+            <p class="text-muted mb-0">Publish a new luxury property listing with multi-table features, images, and pricing rules.</p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-3">
+            <i class="bi bi-arrow-left me-1"></i> Back to List
+        </a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+    <form asp-action="Create" method="post">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+        <div class="row g-4">
+            <!-- Basic Details -->
+            <div class="col-12">
+                <h6 class="fw-bold text-uppercase text-secondary border-bottom pb-2">1. Basic Property Information</h6>
+            </div>
+
+            <div class="col-md-8">
+                <label asp-for="Title" class="form-label fw-semibold small text-secondary"></label>
+                <input asp-for="Title" class="form-control" placeholder="e.g. Modern Sunset Villa with Infinity Pool" required />
+                <span asp-validation-for="Title" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-2">
+                <label asp-for="PropertyType" class="form-label fw-semibold small text-secondary"></label>
+                <select asp-for="PropertyType" class="form-select" asp-items="Html.GetEnumSelectList<PropertyType>()"></select>
+            </div>
+
+            <div class="col-md-2">
+                <label asp-for="ListingType" class="form-label fw-semibold small text-secondary"></label>
+                <select asp-for="ListingType" class="form-select" asp-items="Html.GetEnumSelectList<ListingType>()"></select>
+            </div>
+
+            <div class="col-12">
+                <label asp-for="Description" class="form-label fw-semibold small text-secondary"></label>
+                <textarea asp-for="Description" class="form-control" rows="4" placeholder="Detailed marketing copy and architecture highlights..." required></textarea>
+                <span asp-validation-for="Description" class="text-danger small"></span>
+            </div>
+
+            <!-- Financials & Specs -->
+            <div class="col-12">
+                <h6 class="fw-bold text-uppercase text-secondary border-bottom pb-2 mt-3">2. Pricing, Commission & Specs</h6>
+            </div>
+
+            <div class="col-md-3">
+                <label asp-for="Price" class="form-label fw-semibold small text-secondary"></label>
+                <div class="input-group">
+                    <span class="input-group-text">₹</span>
+                    <input asp-for="Price" class="form-control" required />
+                </div>
+                <span asp-validation-for="Price" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-3">
+                <label asp-for="TokenAmount" class="form-label fw-semibold small text-secondary"></label>
+                <div class="input-group">
+                    <span class="input-group-text">₹</span>
+                    <input asp-for="TokenAmount" class="form-control" placeholder="Auto 5% if empty" />
+                </div>
+                <span asp-validation-for="TokenAmount" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-3">
+                <label asp-for="CommissionRate" class="form-label fw-semibold small text-secondary"></label>
+                <div class="input-group">
+                    <input asp-for="CommissionRate" class="form-control" />
+                    <span class="input-group-text">%</span>
+                </div>
+                <span asp-validation-for="CommissionRate" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-3">
+                <label asp-for="Status" class="form-label fw-semibold small text-secondary"></label>
+                <select asp-for="Status" class="form-select" asp-items="Html.GetEnumSelectList<PropertyStatus>()"></select>
+            </div>
+
+            <div class="col-md-3">
+                <label asp-for="Bedrooms" class="form-label fw-semibold small text-secondary"></label>
+                <input asp-for="Bedrooms" class="form-control" />
+            </div>
+
+            <div class="col-md-3">
+                <label asp-for="Bathrooms" class="form-label fw-semibold small text-secondary"></label>
+                <input asp-for="Bathrooms" class="form-control" />
+            </div>
+
+            <div class="col-md-3">
+                <label asp-for="AreaSqFt" class="form-label fw-semibold small text-secondary"></label>
+                <input asp-for="AreaSqFt" class="form-control" />
+            </div>
+
+            <div class="col-md-3">
+                <label asp-for="YearBuilt" class="form-label fw-semibold small text-secondary"></label>
+                <input asp-for="YearBuilt" class="form-control" />
+            </div>
+
+            <!-- Location Details -->
+            <div class="col-12">
+                <h6 class="fw-bold text-uppercase text-secondary border-bottom pb-2 mt-3">3. Location & Address</h6>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Address" class="form-label fw-semibold small text-secondary"></label>
+                <input asp-for="Address" class="form-control" placeholder="Flat 402, Riverfront Residency, Bodakdev" required />
+                <span asp-validation-for="Address" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-3">
+                <label asp-for="City" class="form-label fw-semibold small text-secondary"></label>
+                <input asp-for="City" class="form-control" placeholder="Ahmedabad" required />
+                <span asp-validation-for="City" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-2">
+                <label asp-for="State" class="form-label fw-semibold small text-secondary"></label>
+                <input asp-for="State" class="form-control" placeholder="Gujarat" required />
+                <span asp-validation-for="State" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-1">
+                <label asp-for="ZipCode" class="form-label fw-semibold small text-secondary"></label>
+                <input asp-for="ZipCode" class="form-control" placeholder="380054" />
+            </div>
+
+            <!-- Images & Features -->
+            <div class="col-12">
+                <h6 class="fw-bold text-uppercase text-secondary border-bottom pb-2 mt-3">4. Gallery Images & Amenities</h6>
+            </div>
+
+            <div class="col-12">
+                <label asp-for="PrimaryImageUrl" class="form-label fw-semibold small text-secondary"></label>
+                <input asp-for="PrimaryImageUrl" class="form-control" placeholder="https://..." />
+            </div>
+
+            <div class="col-12">
+                <label asp-for="AdditionalImageUrls" class="form-label fw-semibold small text-secondary"></label>
+                <textarea asp-for="AdditionalImageUrls" class="form-control font-monospace" rows="3" placeholder="https://image1.jpg&#10;https://image2.jpg"></textarea>
+            </div>
+
+            <div class="col-12">
+                <label asp-for="SelectedFeaturesComma" class="form-label fw-semibold small text-secondary"></label>
+                <input asp-for="SelectedFeaturesComma" class="form-control" placeholder="e.g. Swimming Pool, 24/7 Security, Gym, Solar Panels" />
+            </div>
+
+            <!-- Assigned Broker -->
+            <div class="col-12">
+                <h6 class="fw-bold text-uppercase text-secondary border-bottom pb-2 mt-3">5. Assigned Agent / Broker</h6>
+            </div>
+
+            <div class="col-md-4">
+                <label asp-for="AgentName" class="form-label fw-semibold small text-secondary"></label>
+                <input asp-for="AgentName" class="form-control" />
+            </div>
+
+            <div class="col-md-4">
+                <label asp-for="AgentEmail" class="form-label fw-semibold small text-secondary"></label>
+                <input asp-for="AgentEmail" class="form-control" />
+            </div>
+
+            <div class="col-md-4">
+                <label asp-for="AgentPhone" class="form-label fw-semibold small text-secondary"></label>
+                <input asp-for="AgentPhone" class="form-control" />
+            </div>
+
+            <div class="col-12">
+                <div class="form-check form-switch mt-2">
+                    <input class="form-check-input" type="checkbox" asp-for="IsFeatured" id="isFeaturedCheck">
+                    <label class="form-check-label fw-semibold" for="isFeaturedCheck">Feature this property on homepage hero banner</label>
+                </div>
+            </div>
+
+            <div class="col-12 text-end pt-3 border-top">
+                <a asp-action="Index" class="btn btn-secondary rounded-pill px-4 me-2">Cancel</a>
+                <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold shadow">
+                    <i class="bi bi-cloud-arrow-up-fill me-1"></i> Save & Publish Listing
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

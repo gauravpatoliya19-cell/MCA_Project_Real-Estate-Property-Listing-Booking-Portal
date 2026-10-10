@@ -1,0 +1,77 @@
+@model RealEstatePortal.Web.ViewModels.UserEditVM
+@{
+    ViewData["Title"] = "Edit User - " + Model.FullName;
+}
+
+<div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h4 class="fw-bold mb-1 text-dark"><i class="bi bi-pencil-square text-primary me-2"></i> Edit User Profile & Roles</h4>
+            <p class="text-muted mb-0">Modify contact information, security credentials, and access role level.</p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-3">
+            <i class="bi bi-arrow-left me-1"></i> Back to Users
+        </a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+    <form asp-action="Edit" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger small"></div>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="FullName" class="form-label small fw-semibold text-secondary"></label>
+                <input asp-for="FullName" class="form-control" required />
+                <span asp-validation-for="FullName" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Email" class="form-label small fw-semibold text-secondary"></label>
+                <input asp-for="Email" type="email" class="form-control" required />
+                <span asp-validation-for="Email" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="PhoneNumber" class="form-label small fw-semibold text-secondary"></label>
+                <input asp-for="PhoneNumber" type="tel" class="form-control" />
+                <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Role" class="form-label small fw-semibold text-secondary"></label>
+                <select asp-for="Role" class="form-select">
+                    <option value="Customer">Customer / User</option>
+                    <option value="Admin">Administrator</option>
+                </select>
+                <span asp-validation-for="Role" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="NewPassword" class="form-label small fw-semibold text-secondary"></label>
+                <input asp-for="NewPassword" type="password" class="form-control" placeholder="Leave empty to retain existing password" />
+                <span asp-validation-for="NewPassword" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6 d-flex align-items-center">
+                <div class="form-check form-switch mt-4">
+                    <input class="form-check-input" type="checkbox" asp-for="IsActive" id="isActiveCheck">
+                    <label class="form-check-label fw-semibold" for="isActiveCheck">Account Active</label>
+                </div>
+            </div>
+
+            <div class="col-12 text-end pt-3 border-top mt-4">
+                <a asp-action="Index" class="btn btn-secondary rounded-pill px-4 me-2">Cancel</a>
+                <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold shadow">
+                    <i class="bi bi-check2-circle me-1"></i> Update User Profile
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

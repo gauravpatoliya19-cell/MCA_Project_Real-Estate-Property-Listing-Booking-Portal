@@ -1,0 +1,167 @@
+@model RealEstatePortal.Web.Models.RentalContract
+@{
+    ViewData["Title"] = "Lease Agreement - " + Model.ContractNumber;
+}
+
+<div class="container py-3">
+    <!-- Action Bar (Hidden when printing) -->
+    <div class="d-flex justify-content-between align-items-center mb-4 no-print p-3 bg-white rounded-4 shadow-sm border">
+        <div>
+            <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill fw-bold me-2">
+                <i class="bi bi-file-earmark-check-fill me-1"></i> Status: @Model.Status
+            </span>
+            <span class="text-muted">Contract Reference: <strong class="text-dark">@Model.ContractNumber</strong></span>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="DownloadHtml" asp-route-id="@Model.Id" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+                <i class="bi bi-download me-1"></i> Download Agreement (.html)
+            </a>
+            <button type="button" class="btn btn-primary btn-sm rounded-pill px-3" onclick="window.print();">
+                <i class="bi bi-printer-fill me-1"></i> Print / Save PDF
+            </button>
+            <a asp-controller="Catalog" asp-action="Index" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                <i class="bi bi-arrow-left me-1"></i> Catalog
+            </a>
+        </div>
+    </div>
+
+    <!-- Official Contract Document Paper -->
+    <div class="contract-paper mx-auto" style="max-width: 880px;">
+        <!-- Header -->
+        <div class="text-center border-bottom pb-4 mb-4">
+            <div class="d-flex align-items-center justify-content-center fw-bold fs-3 text-dark mb-1">
+                <i class="bi bi-building text-primary me-2"></i>
+                <span>Real Estate <span class="text-primary">Property</span></span>
+            </div>
+            <h4 class="fw-bold text-dark text-uppercase mb-1" style="letter-spacing: 1.5px;">Residential Tenancy Lease Agreement</h4>
+            <p class="text-muted small mb-2">Cryptographically Signed &bull; Real Estate Escrow Verification Portal</p>
+            <span class="badge bg-light text-primary border border-primary-subtle px-3 py-2 rounded-pill font-monospace">
+                Agreement #@Model.ContractNumber
+            </span>
+        </div>
+
+        <!-- Parties Section -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-6">
+                <div class="p-3 bg-light rounded-3 h-100 border">
+                    <h6 class="fw-bold text-uppercase text-secondary small mb-3 border-bottom pb-2">
+                        <i class="bi bi-person-badge-fill text-primary me-1"></i> Landlord / Lessor
+                    </h6>
+                    <div class="fw-bold fs-6 text-dark mb-1">@Model.LandlordName</div>
+                    <div class="text-secondary small mb-1"><i class="bi bi-envelope me-1"></i> @Model.LandlordEmail</div>
+                    <div class="text-secondary small"><i class="bi bi-shield-check me-1 text-success"></i> Authorized Property Manager</div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="p-3 bg-light rounded-3 h-100 border">
+                    <h6 class="fw-bold text-uppercase text-secondary small mb-3 border-bottom pb-2">
+                        <i class="bi bi-person-fill text-primary me-1"></i> Tenant / Lessee
+                    </h6>
+                    <div class="fw-bold fs-6 text-dark mb-1">@Model.TenantName</div>
+                    <div class="text-secondary small mb-1"><i class="bi bi-envelope me-1"></i> @Model.TenantEmail</div>
+                    <div class="text-secondary small mb-1"><i class="bi bi-telephone me-1"></i> @Model.TenantPhone</div>
+                    <div class="text-secondary small"><i class="bi bi-card-text me-1"></i> ID Proof: @Model.TenantIdProof</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leased Property Details -->
+        @if (Model.Property != null)
+        {
+            <div class="card bg-light border rounded-3 p-3 mb-4">
+                <h6 class="fw-bold text-uppercase text-secondary small mb-2 border-bottom pb-2">
+                    <i class="bi bi-house-door-fill text-primary me-1"></i> Leased Real Estate Asset
+                </h6>
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h6 class="fw-bold text-dark mb-1">@Model.Property.Title</h6>
+                        <div class="text-secondary small"><i class="bi bi-geo-alt-fill text-danger me-1"></i> @Model.Property.Address, @Model.Property.City, @Model.Property.State @Model.Property.ZipCode</div>
+                    </div>
+                    <div class="col-md-4 text-md-end mt-2 mt-md-0">
+                        <span class="badge bg-secondary">@Model.Property.PropertyType</span>
+                        <span class="text-muted small ms-1">@Model.Property.Bedrooms Beds / @Model.Property.Bathrooms Baths</span>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Financial Breakdown -->
+        <h6 class="fw-bold text-uppercase text-secondary small mb-2">
+            <i class="bi bi-cash-stack text-success me-1"></i> Lease Term & Financial Schedule
+        </h6>
+        <div class="table-responsive mb-4">
+            <table class="table table-bordered align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Item Description</th>
+                        <th>Schedule / Term</th>
+                        <th class="text-end">Amount (₹)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Lease Duration</strong></td>
+                        <td>@Model.StartDate.ToString("MMM dd, yyyy") &mdash; @Model.EndDate.ToString("MMM dd, yyyy")</td>
+                        <td class="text-end text-muted">1 Year Term</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Monthly Rent</strong></td>
+                        <td>Payable @Model.PaymentFrequency</td>
+                        <td class="text-end fw-bold text-dark">₹@Model.MonthlyRent.ToString("N2")</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Security Deposit (Escrow)</strong></td>
+                        <td>Refundable at termination</td>
+                        <td class="text-end fw-bold text-dark">₹@Model.SecurityDeposit.ToString("N2")</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Token Reservation Deposit Credited</strong></td>
+                        <td>Pre-paid during hold reservation</td>
+                        <td class="text-end fw-bold text-success">-₹@Model.TokenPaid.ToString("N2")</td>
+                    </tr>
+                    <tr class="table-active">
+                        <td colspan="2" class="fw-bold text-dark fs-6">Net Balance Due Upon Key Handover:</td>
+                        <td class="text-end fw-bold fs-5 text-primary">₹@Model.BalanceDue.ToString("N2")</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Terms & Covenants -->
+        <h6 class="fw-bold text-uppercase text-secondary small mb-2">
+            <i class="bi bi-journal-text text-primary me-1"></i> Terms, Covenants & Tenancy Rules
+        </h6>
+        <div class="p-3 bg-light border rounded-3 mb-4 small text-secondary font-monospace" style="white-space: pre-line; line-height: 1.7;">
+            @Model.TermsAndConditions
+        </div>
+
+        <!-- Signatures & Cryptographic Proof -->
+        <div class="row g-4 pt-3 border-top mb-4">
+            <div class="col-6">
+                <div class="border-top border-2 border-dark pt-2">
+                    <div class="fw-bold text-dark">@Model.LandlordName</div>
+                    <div class="text-muted small">Authorized Lessor / Broker Representative</div>
+                    <div class="text-muted small">Date: @Model.GeneratedAt.ToString("yyyy-MM-dd")</div>
+                    <div class="font-italic text-primary mt-2" style="font-family: cursive; font-size: 1.1rem;">
+                        Real Estate Property Escrow
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="border-top border-2 border-dark pt-2">
+                    <div class="fw-bold text-dark">@Model.TenantName</div>
+                    <div class="text-muted small">Lessee / Tenant</div>
+                    <div class="text-muted small">Date: @Model.GeneratedAt.ToString("yyyy-MM-dd")</div>
+                    <div class="font-monospace text-primary small mt-1" style="font-size: 11px;">
+                        Hash: @Model.DigitalSignature
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Seal -->
+        <div class="text-center text-muted small border-top pt-3">
+            <i class="bi bi-shield-fill-check text-success me-1"></i> Electronically executed and recorded on @Model.GeneratedAt.ToString("MMMM dd, yyyy hh:mm tt UTC"). Valid under the Uniform Electronic Transactions Act.
+        </div>
+    </div>
+</div>

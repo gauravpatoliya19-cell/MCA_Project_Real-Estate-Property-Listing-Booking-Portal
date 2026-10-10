@@ -1,0 +1,254 @@
+@model RealEstatePortal.Web.Models.Property
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-action="Index">Catalog</a></li>
+        <li class="breadcrumb-item"><a asp-action="Index" asp-route-City="@Model.City">@Model.City</a></li>
+        <li class="breadcrumb-item active" aria-current="page">@Model.Title</li>
+    </ol>
+</nav>
+
+<div class="row g-4">
+    <!-- Main Left Column -->
+    <div class="col-lg-8">
+        <!-- Title & Location Header -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+            <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
+                <div>
+                    <span class="badge bg-primary-subtle text-primary fw-semibold px-3 py-1 rounded-pill mb-2">
+                        For @Model.ListingType &bull; @Model.PropertyType
+                    </span>
+                    <h2 class="fw-bold text-dark mb-1">@Model.Title</h2>
+                    <p class="text-muted mb-0">
+                        <i class="bi bi-geo-alt-fill text-danger me-1"></i> @Model.Address, @Model.City, @Model.State @Model.ZipCode
+                    </p>
+                </div>
+                <div class="text-lg-end">
+                    <div class="display-6 fw-bold text-primary mb-0">
+                        @Model.FormattedPriceWithPeriod
+                    </div>
+                    @if (Model.Price >= 100000m)
+                    {
+                        <div class="text-muted small fw-semibold">₹@Model.Price.ToString("N0")</div>
+                    }
+                    @{
+                        string statusBadge = Model.Status switch
+                        {
+                            PropertyStatus.Available => "bg-success",
+                            PropertyStatus.Booked => "bg-warning text-dark",
+                            PropertyStatus.Rented => "bg-info",
+                            PropertyStatus.Sold => "bg-danger",
+                            _ => "bg-secondary"
+                        };
+                    }
+                    <span class="badge @statusBadge px-3 py-2 rounded-pill mt-1">@Model.Status</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Image Gallery Carousel -->
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4 bg-dark">
+            <div id="propertyGalleryCarousel" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-indicators">
+                    @for (int i = 0; i < Model.Images.Count; i++)
+                    {
+                        <button type="button" data-bs-target="#propertyGalleryCarousel" data-bs-slide-to="@i" class="@(i == 0 ? "active" : "")" aria-current="@(i == 0 ? "true" : "false")" aria-label="Slide @(i+1)"></button>
+                    }
+                </div>
+                <div class="carousel-inner" style="max-height: 480px;">
+                    @if (Model.Images.Any())
+                    {
+                        int index = 0;
+                        foreach (var img in Model.Images)
+                        {
+                            <div class="carousel-item @(index == 0 ? "active" : "")">
+                                <img src="@img.ImageUrl" class="d-block w-100" style="height: 480px; object-fit: cover;" alt="@img.Caption">
+                                @if (!string.IsNullOrEmpty(img.Caption))
+                                {
+                                    <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded-3 p-2">
+                                        <p class="mb-0">@img.Caption</p>
+                                    </div>
+                                }
+                            </div>
+                            index++;
+                        }
+                    }
+                    else
+                    {
+                        <div class="carousel-item active">
+                            <img src="@Model.PrimaryImageUrl" class="d-block w-100" style="height: 480px; object-fit: cover;" alt="@Model.Title">
+                        </div>
+                    }
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#propertyGalleryCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#propertyGalleryCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Key Metrics Row -->
+        <div class="row g-3 mb-4">
+            <div class="col-4 col-md-3">
+                <div class="card border-0 shadow-sm rounded-4 p-3 text-center bg-white">
+                    <i class="bi bi-door-open text-primary fs-3 mb-1"></i>
+                    <div class="fw-bold fs-5">@Model.Bedrooms</div>
+                    <div class="text-muted small">Bedrooms</div>
+                </div>
+            </div>
+            <div class="col-4 col-md-3">
+                <div class="card border-0 shadow-sm rounded-4 p-3 text-center bg-white">
+                    <i class="bi bi-droplet text-info fs-3 mb-1"></i>
+                    <div class="fw-bold fs-5">@Model.Bathrooms</div>
+                    <div class="text-muted small">Bathrooms</div>
+                </div>
+            </div>
+            <div class="col-4 col-md-3">
+                <div class="card border-0 shadow-sm rounded-4 p-3 text-center bg-white">
+                    <i class="bi bi-bounding-box text-warning fs-3 mb-1"></i>
+                    <div class="fw-bold fs-5">@Model.AreaSqFt</div>
+                    <div class="text-muted small">Sq Ft Area</div>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="card border-0 shadow-sm rounded-4 p-3 text-center bg-white">
+                    <i class="bi bi-calendar3 text-success fs-3 mb-1"></i>
+                    <div class="fw-bold fs-5">@Model.YearBuilt</div>
+                    <div class="text-muted small">Year Built</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Overview & Description -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+            <h5 class="fw-bold text-dark mb-3"><i class="bi bi-file-text-fill text-primary me-2"></i> Property Overview</h5>
+            <p class="text-secondary leading-relaxed" style="line-height: 1.8;">@Model.Description</p>
+        </div>
+
+        <!-- Features & Amenities -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+            <h5 class="fw-bold text-dark mb-3"><i class="bi bi-check2-circle text-success me-2"></i> Features & Amenities</h5>
+            <div class="row g-3">
+                @if (Model.Features.Any())
+                {
+                    foreach (var f in Model.Features)
+                    {
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center p-2 bg-light rounded-3">
+                                <i class="bi @(f.IconClass ?? "bi-check-circle-fill") text-primary fs-5 me-2"></i>
+                                <span class="fw-medium text-dark">@f.FeatureName</span>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="col-12 text-muted">No specific features specified for this listing.</div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column / Action Cards -->
+    <div class="col-lg-4">
+        <!-- Direct Actions Card -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white sticky-top" style="top: 80px;">
+            <h5 class="fw-bold text-dark mb-3">Reserve or Schedule</h5>
+
+            <!-- Token Payment Option -->
+            <div class="p-3 bg-light rounded-3 border border-primary-subtle mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="fw-bold text-dark">Earnest Token Deposit:</span>
+                    <span class="fs-5 fw-bold text-primary">@Model.FormattedTokenAmount <small class="text-muted fw-normal" style="font-size:0.8rem;">(₹@((Model.TokenAmount > 0 ? Model.TokenAmount : Model.Price * 0.05m).ToString("N0")))</small></span>
+                </div>
+                <p class="text-muted small mb-3">Instantly lock and hold this property in escrow.</p>
+                @if (Model.Status == PropertyStatus.Available)
+                {
+                    <a asp-controller="Payments" asp-action="Checkout" asp-route-propertyId="@Model.Id" class="btn btn-primary w-100 rounded-pill py-2 fw-semibold">
+                        <i class="bi bi-credit-card-fill me-1"></i> Pay Token & Reserve Now
+                    </a>
+                }
+                else
+                {
+                    <button class="btn btn-secondary w-100 rounded-pill py-2" disabled>
+                        <i class="bi bi-lock-fill me-1"></i> Reserved / @Model.Status
+                    </button>
+                }
+            </div>
+
+            <!-- Site Visit Cart Option -->
+            <div class="p-3 bg-light rounded-3 mb-3">
+                <div class="fw-bold text-dark mb-1">Schedule Guided Walkthrough</div>
+                <p class="text-muted small mb-3">Add this property to your site visit cart to pick date & time slot.</p>
+                <form asp-controller="BookingCart" asp-action="AddToCart" method="post">
+                    <input type="hidden" name="propertyId" value="@Model.Id" />
+                    <button type="submit" class="btn btn-outline-dark w-100 rounded-pill py-2 fw-semibold">
+                        <i class="bi bi-calendar-plus-fill me-1"></i> Add to Visit Cart
+                    </button>
+                </form>
+            </div>
+
+            <!-- Rental Contract Generator Option -->
+            @if (Model.ListingType == ListingType.Rent)
+            {
+                <div class="p-3 bg-light rounded-3 mb-4">
+                    <div class="fw-bold text-dark mb-1">Rental Agreement</div>
+                    <p class="text-muted small mb-2">Generate official residential tenancy lease contract.</p>
+                    <a asp-controller="Contracts" asp-action="Generate" asp-route-propertyId="@Model.Id" class="btn btn-outline-success w-100 rounded-pill py-2 fw-semibold">
+                        <i class="bi bi-file-earmark-text-fill me-1"></i> Generate Lease Contract
+                    </a>
+                </div>
+            }
+
+            <!-- Agent Contact Info -->
+            <div class="border-top pt-3">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-primary text-white rounded-circle p-3 d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
+                        <i class="bi bi-person-fill fs-5"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold text-dark">@Model.AgentName</div>
+                        <div class="text-muted small">Senior Portfolio Consultant</div>
+                    </div>
+                </div>
+                <div class="small text-secondary mb-2">
+                    <i class="bi bi-envelope-fill text-primary me-2"></i> @Model.AgentEmail
+                </div>
+                <div class="small text-secondary mb-3">
+                    <i class="bi bi-telephone-fill text-primary me-2"></i> @Model.AgentPhone
+                </div>
+            </div>
+
+            <!-- Quick Inquiry Form -->
+            <div class="border-top pt-3">
+                <h6 class="fw-bold text-dark mb-2">Send Agent Direct Inquiry</h6>
+                <form asp-action="SubmitInquiry" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="PropertyId" value="@Model.Id" />
+                    <div class="mb-2">
+                        <input type="text" name="CustomerName" class="form-control form-control-sm" placeholder="Your Name" required />
+                    </div>
+                    <div class="mb-2">
+                        <input type="email" name="CustomerEmail" class="form-control form-control-sm" placeholder="Your Email" required />
+                    </div>
+                    <div class="mb-2">
+                        <input type="tel" name="CustomerPhone" class="form-control form-control-sm" placeholder="Your Phone Number" required />
+                    </div>
+                    <div class="mb-2">
+                        <textarea name="Message" rows="2" class="form-control form-control-sm" placeholder="Questions about pricing, dates..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-outline-primary btn-sm w-100 rounded-pill">
+                        <i class="bi bi-send-fill me-1"></i> Send Inquiry
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

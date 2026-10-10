@@ -1,0 +1,153 @@
+@model IEnumerable<RealEstatePortal.Web.Models.Property>
+@{
+    ViewData["Title"] = "Luxury Real Estate & Booking Portal";
+}
+
+<!-- Hero Banner -->
+<div class="hero-banner mb-5 text-center text-lg-start position-relative shadow">
+    <div class="row align-items-center">
+        <div class="col-lg-8">
+            <span class="badge bg-primary px-3 py-2 rounded-pill fw-semibold mb-3">
+                <i class="bi bi-star-fill text-warning me-1"></i> Real Estate Property &bull; Gujarat Realty
+            </span>
+            <h1 class="display-4 fw-bold mb-3 text-white">Find, Schedule, Reserve & Sign in One Seamless Portal</h1>
+            <p class="lead text-white-50 mb-4">
+                Explore luxury properties, schedule custom multi-property site visits, pay token deposits via secured escrow, and generate binding digital tenancy agreements.
+            </p>
+            <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start">
+                <a asp-area="Customer" asp-controller="Catalog" asp-action="Index" class="btn btn-primary btn-lg rounded-pill px-4 py-3 fw-bold shadow">
+                    <i class="bi bi-search me-2"></i> Browse Property Catalog
+                </a>
+                <a asp-area="Customer" asp-controller="BookingCart" asp-action="Index" class="btn btn-outline-light btn-lg rounded-pill px-4 py-3 fw-semibold">
+                    <i class="bi bi-calendar-check me-2"></i> Site Visit Cart
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Workflow Steps Section -->
+<div class="mb-5">
+    <div class="text-center mb-4">
+        <span class="badge bg-primary-subtle text-primary fw-semibold px-3 py-1 rounded-pill mb-2">Core Workflow</span>
+        <h3 class="fw-bold text-dark">4 Core Transactions in One Platform</h3>
+        <p class="text-muted">From discovery to digital keys handover</p>
+    </div>
+
+    <div class="row g-4">
+        <!-- Step 1 -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white text-center h-100">
+                <div class="bg-primary-subtle text-primary rounded-circle d-inline-flex p-3 fs-3 mx-auto mb-3">
+                    <i class="bi bi-funnel-fill"></i>
+                </div>
+                <h5 class="fw-bold text-dark">1. Filtered Search</h5>
+                <p class="text-muted small mb-0">Search by city, price range, property type (Villa, Penthouse, Commercial), bedrooms, and amenities.</p>
+            </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white text-center h-100">
+                <div class="bg-info-subtle text-info rounded-circle d-inline-flex p-3 fs-3 mx-auto mb-3">
+                    <i class="bi bi-cart-check-fill"></i>
+                </div>
+                <h5 class="fw-bold text-dark">2. Visit Booking Cart</h5>
+                <p class="text-muted small mb-0">Shortlist multiple properties, pick custom walkthrough appointment dates & time slots.</p>
+            </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white text-center h-100">
+                <div class="bg-warning-subtle text-warning rounded-circle d-inline-flex p-3 fs-3 mx-auto mb-3">
+                    <i class="bi bi-credit-card-2-front-fill"></i>
+                </div>
+                <h5 class="fw-bold text-dark">3. Token Payment</h5>
+                <p class="text-muted small mb-0">Direct token escrow payment processing to lock and hold the listing with instant receipts.</p>
+            </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white text-center h-100">
+                <div class="bg-success-subtle text-success rounded-circle d-inline-flex p-3 fs-3 mx-auto mb-3">
+                    <i class="bi bi-file-earmark-check-fill"></i>
+                </div>
+                <h5 class="fw-bold text-dark">4. Digital Contracts</h5>
+                <p class="text-muted small mb-0">Auto-generate legally binding residential lease contracts with token deductions and PDF printouts.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Featured Properties Section -->
+<div class="mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <span class="badge bg-primary-subtle text-primary fw-semibold px-3 py-1 rounded-pill mb-1">Featured Assets</span>
+            <h3 class="fw-bold text-dark mb-0">Handpicked Luxury Residences</h3>
+        </div>
+        <a asp-area="Customer" asp-controller="Catalog" asp-action="Index" class="btn btn-outline-primary rounded-pill px-3">
+            View All Properties <i class="bi bi-arrow-right ms-1"></i>
+        </a>
+    </div>
+
+    <div class="row g-4">
+        @foreach (var item in Model)
+        {
+            <div class="col-md-6 col-lg-4">
+                <div class="card property-card h-100">
+                    <div class="property-img-container">
+                        <img src="@item.PrimaryImageUrl" class="property-img" alt="@item.Title" onerror="this.src='https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=80'">
+                        <span class="badge-tag">For @item.ListingType &bull; @item.PropertyType</span>
+                        @{
+                            string statusClass = item.Status switch
+                            {
+                                PropertyStatus.Available => "bg-success text-white",
+                                PropertyStatus.Booked => "bg-warning text-dark",
+                                PropertyStatus.Rented => "bg-info text-white",
+                                PropertyStatus.Sold => "bg-danger text-white",
+                                _ => "bg-secondary text-white"
+                            };
+                        }
+                        <span class="badge badge-status @statusClass">@item.Status</span>
+                    </div>
+                    <div class="card-body p-4 d-flex flex-column">
+                        <div class="price-tag mb-2 d-flex align-items-baseline gap-2 flex-wrap">
+                            <span>@item.FormattedPriceWithPeriod</span>
+                            @if (item.Price >= 100000m)
+                            {
+                                <span class="text-muted fw-normal small" style="font-size: 0.85rem;">(₹@item.Price.ToString("N0"))</span>
+                            }
+                        </div>
+                        <h5 class="card-title fw-bold text-dark mb-1 text-truncate">
+                            <a asp-area="Customer" asp-controller="Catalog" asp-action="Details" asp-route-id="@item.Id" class="text-dark text-decoration-none hover-primary">
+                                @item.Title
+                            </a>
+                        </h5>
+                        <p class="text-muted small mb-3">
+                            <i class="bi bi-geo-alt-fill text-danger me-1"></i> @item.City, @item.State
+                        </p>
+                        <div class="d-flex justify-content-between py-2 px-3 bg-light rounded-3 mb-3 text-secondary small">
+                            <span><i class="bi bi-door-open text-primary me-1"></i> @item.Bedrooms Beds</span>
+                            <span><i class="bi bi-droplet text-info me-1"></i> @item.Bathrooms Baths</span>
+                            <span><i class="bi bi-bounding-box text-warning me-1"></i> @item.AreaSqFt Sq Ft</span>
+                        </div>
+                        <div class="mt-auto pt-3 border-top d-flex gap-2">
+                            <a asp-area="Customer" asp-controller="Catalog" asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm flex-fill rounded-pill">
+                                View Details
+                            </a>
+                            @if (item.Status == PropertyStatus.Available)
+                            {
+                                <a asp-area="Customer" asp-controller="Payments" asp-action="Checkout" asp-route-propertyId="@item.Id" class="btn btn-primary btn-sm rounded-pill px-3">
+                                    Reserve
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

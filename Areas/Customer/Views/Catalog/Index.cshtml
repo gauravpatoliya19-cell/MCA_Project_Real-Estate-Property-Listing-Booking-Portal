@@ -1,0 +1,241 @@
+@model RealEstatePortal.Web.Areas.Customer.ViewModels.PropertySearchVM
+@{
+    ViewData["Title"] = "Property Catalog & Search";
+}
+
+<!-- Search & Header Banner -->
+<div class="mb-4 p-4 rounded-4 shadow-sm bg-white border">
+    <div class="row align-items-center">
+        <div class="col-lg-7">
+            <span class="badge bg-primary-subtle text-primary fw-semibold px-3 py-2 rounded-pill mb-2">
+                <i class="bi bi-geo-alt-fill me-1"></i> Explore Exclusive Properties
+            </span>
+            <h2 class="fw-bold mb-1 text-dark">Find Your Dream Residence or Investment</h2>
+            <p class="text-muted mb-0">Filtered multi-parameter search across prime residential & commercial real estate.</p>
+        </div>
+        <div class="col-lg-5 text-lg-end mt-3 mt-lg-0">
+            <span class="text-muted fs-6 me-2">Showing <strong>@Model.TotalCount</strong> listings</span>
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm rounded-pill">
+                <i class="bi bi-arrow-counterclockwise me-1"></i> Reset Filters
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Filter Sidebar -->
+    <div class="col-lg-3">
+        <div class="card border-0 shadow-sm rounded-4 sticky-top" style="top: 80px;">
+            <div class="card-header bg-white border-bottom p-3 d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-bold"><i class="bi bi-funnel-fill text-primary me-2"></i> Filter Search</h6>
+            </div>
+            <div class="card-body p-3">
+                <form method="get" asp-action="Index">
+                    <!-- Keyword Search -->
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-secondary">Keyword Search</label>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+                            <input type="text" name="Keyword" value="@Model.Keyword" class="form-control" placeholder="Title, address, city...">
+                        </div>
+                    </div>
+
+                    <!-- City -->
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-secondary">City / Location</label>
+                        <select name="City" class="form-select form-select-sm">
+                            <option value="">All Cities</option>
+                            @foreach (var city in Model.AvailableCities)
+                            {
+                                if (Model.City == city)
+                                {
+                                    <option value="@city" selected>@city</option>
+                                }
+                                else
+                                {
+                                    <option value="@city">@city</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <!-- Listing Type -->
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-secondary">Listing Type</label>
+                        <select name="ListingType" class="form-select form-select-sm" asp-items="Html.GetEnumSelectList<ListingType>()">
+                            <option value="">All (Rent & Sale)</option>
+                        </select>
+                    </div>
+
+                    <!-- Property Type -->
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-secondary">Property Type</label>
+                        <select name="PropertyType" class="form-select form-select-sm" asp-items="Html.GetEnumSelectList<PropertyType>()">
+                            <option value="">All Property Types</option>
+                        </select>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-secondary">Availability Status</label>
+                        <select name="Status" class="form-select form-select-sm" asp-items="Html.GetEnumSelectList<PropertyStatus>()">
+                            <option value="">All Statuses</option>
+                        </select>
+                    </div>
+
+                    <!-- Price Range -->
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-secondary">Price Range (₹)</label>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <input type="number" name="MinPrice" value="@Model.MinPrice" class="form-control form-control-sm" placeholder="Min ₹">
+                            </div>
+                            <div class="col-6">
+                                <input type="number" name="MaxPrice" value="@Model.MaxPrice" class="form-control form-control-sm" placeholder="Max ₹">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bedrooms & Bathrooms -->
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label small fw-semibold text-secondary">Min Beds</label>
+                            <input type="number" name="Bedrooms" value="@Model.Bedrooms" class="form-control form-control-sm" placeholder="0+">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-semibold text-secondary">Min Baths</label>
+                            <input type="number" name="Bathrooms" value="@Model.Bathrooms" class="form-control form-control-sm" placeholder="0+">
+                        </div>
+                    </div>
+
+                    <!-- Sorting -->
+                    <div class="mb-4">
+                        <label class="form-label small fw-semibold text-secondary">Sort By</label>
+                        <select name="SortBy" class="form-select form-select-sm">
+                            <!option value="newest" @(Model.SortBy == "newest" ? "selected" : "")>Newest Added</!option>
+                            <!option value="price_asc" @(Model.SortBy == "price_asc" ? "selected" : "")>Price: Low to High</!option>
+                            <!option value="price_desc" @(Model.SortBy == "price_desc" ? "selected" : "")>Price: High to Low</!option>
+                            <!option value="area_desc" @(Model.SortBy == "area_desc" ? "selected" : "")>Largest Area (Sq Ft)</!option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-sm w-100 rounded-pill py-2 fw-semibold">
+                        <i class="bi bi-filter me-1"></i> Apply Filters
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Properties Grid -->
+    <div class="col-lg-9">
+        @if (!Model.Properties.Any())
+        {
+            <div class="card border-0 shadow-sm rounded-4 p-5 text-center bg-white">
+                <i class="bi bi-search display-3 text-muted mb-3"></i>
+                <h4 class="fw-bold">No Matching Properties Found</h4>
+                <p class="text-muted">Try adjusting your filters or price range to find matching listings.</p>
+                <div class="mt-2">
+                    <a asp-action="Index" class="btn btn-primary rounded-pill px-4">Reset All Filters</a>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="row g-4">
+                @foreach (var item in Model.Properties)
+                {
+                    <div class="col-md-6 col-xl-6">
+                        <div class="card property-card h-100">
+                            <!-- Image & Badges -->
+                            <div class="property-img-container">
+                                <img src="@item.PrimaryImageUrl" class="property-img" alt="@item.Title" onerror="this.src='https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=80'">
+                                <span class="badge-tag">
+                                    <i class="bi bi-tag-fill me-1"></i> For @item.ListingType &bull; @item.PropertyType
+                                </span>
+                                @{
+                                    string statusClass = item.Status switch
+                                    {
+                                        PropertyStatus.Available => "bg-success text-white",
+                                        PropertyStatus.Booked => "bg-warning text-dark",
+                                        PropertyStatus.Rented => "bg-info text-white",
+                                        PropertyStatus.Sold => "bg-danger text-white",
+                                        _ => "bg-secondary text-white"
+                                    };
+                                }
+                                <span class="badge badge-status @statusClass">@item.Status</span>
+                            </div>
+
+                            <!-- Card Body -->
+                            <div class="card-body p-4 d-flex flex-column">
+                                <div class="d-flex justify-content-between align-items-baseline mb-2">
+                                    <div class="price-tag">
+                                        <span>@item.FormattedPriceWithPeriod</span>
+                                        @if (item.Price >= 100000m)
+                                        {
+                                            <span class="text-muted fw-normal small d-block" style="font-size: 0.78rem;">(₹@item.Price.ToString("N0"))</span>
+                                        }
+                                    </div>
+                                    @if (item.TokenAmount > 0)
+                                    {
+                                        <span class="badge bg-light text-primary border border-primary-subtle" title="Token to Reserve">
+                                            Token: @item.FormattedTokenAmount
+                                        </span>
+                                    }
+                                </div>
+
+                                <h5 class="card-title fw-bold text-dark mb-1 text-truncate">
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="text-dark text-decoration-none hover-primary">
+                                        @item.Title
+                                    </a>
+                                </h5>
+
+                                <p class="text-muted small mb-3">
+                                    <i class="bi bi-geo-alt-fill text-danger me-1"></i> @item.Address, @item.City, @item.State
+                                </p>
+
+                                <!-- Specs row -->
+                                <div class="d-flex justify-content-between align-items-center py-2 px-3 bg-light rounded-3 mb-3 text-secondary small">
+                                    <span><i class="bi bi-door-open-fill text-primary me-1"></i> @item.Bedrooms Beds</span>
+                                    <span><i class="bi bi-droplet-fill text-info me-1"></i> @item.Bathrooms Baths</span>
+                                    <span><i class="bi bi-bounding-box text-warning me-1"></i> @item.AreaSqFt Sq Ft</span>
+                                </div>
+
+                                <p class="card-text text-muted small text-truncate-2 flex-grow-1" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                    @item.Description
+                                </p>
+
+                                <!-- Action Buttons -->
+                                <div class="pt-3 border-top d-flex gap-2">
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm flex-fill rounded-pill">
+                                        <i class="bi bi-eye me-1"></i> Details
+                                    </a>
+
+                                    <form asp-controller="BookingCart" asp-action="AddToCart" method="post" class="d-inline">
+                                        <input type="hidden" name="propertyId" value="@item.Id" />
+                                        <button type="submit" class="btn btn-outline-secondary btn-sm rounded-pill" title="Add to Site Visit Cart">
+                                            <i class="bi bi-calendar-plus"></i>
+                                        </button>
+                                    </form>
+
+                                    @if (item.Status == PropertyStatus.Available)
+                                    {
+                                        <a asp-controller="Payments" asp-action="Checkout" asp-route-propertyId="@item.Id" class="btn btn-primary btn-sm rounded-pill px-3" title="Pay Token to Reserve">
+                                            <i class="bi bi-credit-card me-1"></i> Reserve
+                                        </a>
+                                    }
+                                    else if (item.Status == PropertyStatus.Booked && item.ListingType == ListingType.Rent)
+                                    {
+                                        <a asp-controller="Contracts" asp-action="Generate" asp-route-propertyId="@item.Id" class="btn btn-success btn-sm rounded-pill px-3" title="Generate Lease Contract">
+                                            <i class="bi bi-file-earmark-check me-1"></i> Contract
+                                        </a>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>

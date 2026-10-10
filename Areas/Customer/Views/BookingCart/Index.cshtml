@@ -1,0 +1,150 @@
+@model RealEstatePortal.Web.Areas.Customer.ViewModels.BookingCartVM
+@{
+    ViewData["Title"] = "Site Visit Booking Cart";
+}
+
+<div class="mb-4 p-4 rounded-4 shadow-sm bg-white border">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <span class="badge bg-primary-subtle text-primary fw-semibold px-3 py-2 rounded-pill mb-2">
+                <i class="bi bi-calendar-check-fill me-1"></i> Transaction: Site Visit Cart
+            </span>
+            <h2 class="fw-bold mb-1 text-dark">Schedule Property Site Visits</h2>
+            <p class="text-muted mb-0">Select custom appointment dates & time slots for your shortlisted luxury properties.</p>
+        </div>
+        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+            @if (Model.Items.Any())
+            {
+                <form asp-action="ClearCart" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill" onclick="return confirm('Clear all properties from visit cart?');">
+                        <i class="bi bi-trash me-1"></i> Clear Cart
+                    </button>
+                </form>
+            }
+            <a asp-controller="Catalog" asp-action="Index" class="btn btn-outline-primary btn-sm rounded-pill ms-2">
+                <i class="bi bi-plus-lg me-1"></i> Add More
+            </a>
+        </div>
+    </div>
+</div>
+
+@if (!Model.Items.Any())
+{
+    <div class="card border-0 shadow-sm rounded-4 p-5 text-center bg-white">
+        <div class="mb-3 text-muted">
+            <i class="bi bi-cart-x display-1"></i>
+        </div>
+        <h4 class="fw-bold">Your Site Visit Cart is Empty</h4>
+        <p class="text-muted mb-4">Browse our exclusive catalog and add properties you wish to tour in person.</p>
+        <div>
+            <a asp-controller="Catalog" asp-action="Index" class="btn btn-primary rounded-pill px-4 py-2">
+                <i class="bi bi-search me-1"></i> Browse Properties Now
+            </a>
+        </div>
+    </div>
+}
+else
+{
+    <form asp-action="ConfirmBooking" method="post">
+        @Html.AntiForgeryToken()
+        <div class="row g-4">
+            <!-- Left: Cart Items List -->
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+                    <h5 class="fw-bold text-dark mb-3">Shortlisted Properties (@Model.Items.Count)</h5>
+
+                    <div class="d-flex flex-column gap-3">
+                        @for (int i = 0; i < Model.Items.Count; i++)
+                        {
+                            <input type="hidden" name="Items[@i].PropertyId" value="@Model.Items[i].PropertyId" />
+                            <input type="hidden" name="Items[@i].Title" value="@Model.Items[i].Title" />
+                            <input type="hidden" name="Items[@i].ImageUrl" value="@Model.Items[i].ImageUrl" />
+                            <input type="hidden" name="Items[@i].Address" value="@Model.Items[i].Address" />
+                            <input type="hidden" name="Items[@i].City" value="@Model.Items[i].City" />
+                            <input type="hidden" name="Items[@i].Price" value="@Model.Items[i].Price" />
+
+                            <div class="p-3 border rounded-3 bg-light position-relative">
+                                <div class="row align-items-center g-3">
+                                    <div class="col-md-3">
+                                        <img src="@Model.Items[i].ImageUrl" class="img-fluid rounded-3 shadow-sm" style="height: 110px; width: 100%; object-fit: cover;" alt="@Model.Items[i].Title">
+                                    </div>
+                                    <div class="col-md-9">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h6 class="fw-bold mb-1">
+                                                    <a asp-controller="Catalog" asp-action="Details" asp-route-id="@Model.Items[i].PropertyId" class="text-dark text-decoration-none">
+                                                        @Model.Items[i].Title
+                                                    </a>
+                                                </h6>
+                                                <div class="text-muted small mb-2">
+                                                    <i class="bi bi-geo-alt me-1 text-danger"></i> @Model.Items[i].Address, @Model.Items[i].City &bull; <strong class="text-primary">@Model.Items[i].FormattedPriceWithPeriod</strong>
+                                                </div>
+                                            </div>
+                                            <button type="submit" formaction="@Url.Action("RemoveFromCart", new { propertyId = Model.Items[i].PropertyId })" class="btn btn-sm btn-outline-danger border-0">
+                                                <i class="bi bi-x-lg"></i>
+                                            </button>
+                                        </div>
+
+                                        <div class="row g-2 mt-1">
+                                            <div class="col-md-6">
+                                                <label class="form-label small fw-semibold text-secondary mb-1">Preferred Date</label>
+                                                <input type="date" name="Items[@i].VisitDate" value="@Model.Items[i].VisitDate.ToString("yyyy-MM-dd")" class="form-control form-control-sm" required min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label small fw-semibold text-secondary mb-1">Time Slot</label>
+                                                <select name="Items[@i].TimeSlot" class="form-select form-select-sm">
+                                                    <!option value="09:00 AM - 10:30 AM" @(Model.Items[i].TimeSlot == "09:00 AM - 10:30 AM" ? "selected" : "")>09:00 AM - 10:30 AM (Morning)</!option>
+                                                    <!option value="11:00 AM - 12:30 PM" @(Model.Items[i].TimeSlot == "11:00 AM - 12:30 PM" ? "selected" : "")>11:00 AM - 12:30 PM (Noon)</!option>
+                                                    <!option value="02:00 PM - 03:30 PM" @(Model.Items[i].TimeSlot == "02:00 PM - 03:30 PM" ? "selected" : "")>02:00 PM - 03:30 PM (Afternoon)</!option>
+                                                    <!option value="04:00 PM - 05:30 PM" @(Model.Items[i].TimeSlot == "04:00 PM - 05:30 PM" ? "selected" : "")>04:00 PM - 05:30 PM (Evening)</!option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="mt-2">
+                                            <input type="text" name="Items[@i].Notes" value="@Model.Items[i].Notes" class="form-control form-control-sm" placeholder="Any specific requirements or questions for the agent..." />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Visitor Details & Submission -->
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white sticky-top" style="top: 80px;">
+                    <h5 class="fw-bold text-dark mb-3"><i class="bi bi-person-lines-fill text-primary me-2"></i> Visitor Information</h5>
+                    <p class="text-muted small mb-3">Our licensed agent will confirm gate access and meet you on site.</p>
+
+                    <div class="mb-3">
+                        <label asp-for="CustomerName" class="form-label small fw-semibold text-secondary"></label>
+                        <input asp-for="CustomerName" class="form-control" placeholder="Jane Doe" required />
+                        <span asp-validation-for="CustomerName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="CustomerEmail" class="form-label small fw-semibold text-secondary"></label>
+                        <input asp-for="CustomerEmail" type="email" class="form-control" placeholder="jane.doe@example.com" required />
+                        <span asp-validation-for="CustomerEmail" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="CustomerPhone" class="form-label small fw-semibold text-secondary"></label>
+                        <input asp-for="CustomerPhone" type="tel" class="form-control" placeholder="+91 98250 12345" required />
+                        <span asp-validation-for="CustomerPhone" class="text-danger small"></span>
+                    </div>
+
+                    <div class="p-3 bg-light rounded-3 mb-4 small text-secondary">
+                        <i class="bi bi-shield-check text-success me-1"></i> Complimentary guided service. No cancellation fees.
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 fw-semibold">
+                        <i class="bi bi-check2-circle me-1"></i> Confirm & Schedule @Model.Items.Count Visit(s)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+}

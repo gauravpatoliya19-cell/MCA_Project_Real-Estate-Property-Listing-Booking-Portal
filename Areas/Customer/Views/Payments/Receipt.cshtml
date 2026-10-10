@@ -1,0 +1,109 @@
+@model RealEstatePortal.Web.Models.TokenPayment
+@{
+    ViewData["Title"] = "Payment Receipt #" + Model.ReceiptNumber;
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow rounded-4 p-5 bg-white position-relative">
+                <!-- Receipt Header -->
+                <div class="d-flex justify-content-between align-items-start border-bottom pb-4 mb-4">
+                    <div>
+                        <div class="d-flex align-items-center fw-bold fs-4 text-dark mb-1">
+                            <i class="bi bi-building text-primary me-2"></i>
+                            <span>Real Estate <span class="text-primary">Property</span></span>
+                        </div>
+                        <p class="text-muted small mb-0">Official Token Escrow Deposit Receipt</p>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill fs-6 fw-bold">
+                            <i class="bi bi-check-circle-fill me-1"></i> @Model.Status
+                        </span>
+                        <div class="small text-muted mt-1">Receipt: <strong>@Model.ReceiptNumber</strong></div>
+                    </div>
+                </div>
+
+                <!-- Receipt Body Grid -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <h6 class="text-uppercase text-muted fw-bold small">Payer Information</h6>
+                        <div class="fw-bold fs-6 text-dark">@Model.CustomerName</div>
+                        <div class="text-secondary small"><i class="bi bi-envelope me-1"></i> @Model.CustomerEmail</div>
+                        <div class="text-secondary small"><i class="bi bi-telephone me-1"></i> @Model.CustomerPhone</div>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <h6 class="text-uppercase text-muted fw-bold small">Transaction Reference</h6>
+                        <div class="font-monospace small text-primary fw-bold">@Model.TransactionId</div>
+                        <div class="text-secondary small">Date: @Model.PaymentDate.ToString("MMM dd, yyyy hh:mm tt UTC")</div>
+                        <div class="text-secondary small">Method: @Model.PaymentMethod (Ending in @Model.CardLast4)</div>
+                    </div>
+                </div>
+
+                <!-- Property Details -->
+                @if (Model.Property != null)
+                {
+                    <div class="card bg-light border-0 rounded-3 p-3 mb-4">
+                        <h6 class="fw-bold text-dark mb-2">Reserved Property Asset:</h6>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1 fw-bold text-dark">@Model.Property.Title</h6>
+                                <div class="text-muted small"><i class="bi bi-geo-alt text-danger me-1"></i> @Model.Property.Address, @Model.Property.City</div>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-primary">Property #@Model.PropertyId</span>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <!-- Financial Breakdown -->
+                <div class="table-responsive mb-4">
+                    <table class="table align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Description</th>
+                                <th class="text-center">Status</th>
+                                <th class="text-end">Amount Paid</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="fw-bold">Earnest Token Deposit Escrow</div>
+                                    <div class="text-muted small">Property reservation & exclusivity hold</div>
+                                </td>
+                                <td class="text-center"><span class="badge bg-success">Settled</span></td>
+                                <td class="text-end fw-bold fs-5 text-success">₹@Model.Amount.ToString("N2")</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="p-3 bg-light rounded-3 text-muted small mb-4">
+                    <i class="bi bi-info-circle-fill text-primary me-1"></i>
+                    <strong>Escrow Note:</strong> This payment reserves the asset. If executing a lease agreement, this deposit is credited directly towards your lease contract balance.
+                </div>
+
+                <!-- Next Steps Action Buttons -->
+                <div class="d-flex flex-wrap gap-3 justify-content-between align-items-center border-top pt-4 no-print">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-4" onclick="window.print();">
+                        <i class="bi bi-printer-fill me-1"></i> Print Receipt
+                    </button>
+
+                    <div class="d-flex gap-2">
+                        @if (Model.Property != null && Model.Property.ListingType == ListingType.Rent)
+                        {
+                            <a asp-controller="Contracts" asp-action="Generate" asp-route-propertyId="@Model.PropertyId" asp-route-paymentId="@Model.Id" class="btn btn-success rounded-pill px-4 fw-semibold">
+                                <i class="bi bi-file-earmark-check-fill me-1"></i> Generate Rental Contract Now
+                            </a>
+                        }
+                        <a asp-controller="Catalog" asp-action="Index" class="btn btn-primary rounded-pill px-4">
+                            <i class="bi bi-arrow-left me-1"></i> Back to Catalog
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

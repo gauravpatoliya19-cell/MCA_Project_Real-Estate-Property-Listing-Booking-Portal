@@ -1,0 +1,288 @@
+@model RealEstatePortal.Web.Areas.Customer.ViewModels.UserDashboardVM
+@{
+    ViewData["Title"] = "My Bookings & Account";
+}
+
+<!-- User Profile Header -->
+<div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div class="d-flex align-items-center">
+            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3 fw-bold fs-3 shadow-sm" style="width: 60px; height: 60px;">
+                @(Model.CustomerName.Length > 0 ? Model.CustomerName.Substring(0, 1).ToUpper() : "U")
+            </div>
+            <div>
+                <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-1 fw-bold mb-1">
+                    <i class="bi bi-person-check-fill me-1"></i> Client Portal
+                </span>
+                <h4 class="fw-bold mb-0 text-dark">Welcome, @Model.CustomerName</h4>
+                <div class="text-muted small">
+                    <i class="bi bi-envelope me-1"></i> @Model.CustomerEmail
+                    @if (!string.IsNullOrEmpty(Model.CustomerPhone))
+                    {
+                        <span class="ms-2"><i class="bi bi-telephone me-1"></i> @Model.CustomerPhone</span>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex gap-2">
+            <a asp-area="Customer" asp-controller="Catalog" asp-action="Index" class="btn btn-primary rounded-pill px-3 py-2 fw-semibold shadow-sm">
+                <i class="bi bi-search me-1"></i> Browse Properties
+            </a>
+            <a asp-area="Customer" asp-controller="BookingCart" asp-action="Index" class="btn btn-outline-dark rounded-pill px-3 py-2">
+                <i class="bi bi-calendar-plus me-1"></i> Visit Cart
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Navigation Tabs -->
+<ul class="nav nav-pills mb-4 bg-white p-2 rounded-4 shadow-sm" id="userAccountTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active rounded-pill fw-bold" id="visits-tab" data-bs-toggle="pill" data-bs-target="#visits-pane" type="button" role="tab">
+            <i class="bi bi-calendar-event me-1"></i> Scheduled Site Visits (@Model.MyBookings.Count)
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link rounded-pill fw-bold" id="payments-tab" data-bs-toggle="pill" data-bs-target="#payments-pane" type="button" role="tab">
+            <i class="bi bi-credit-card me-1"></i> Token Reservations (@Model.MyPayments.Count)
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link rounded-pill fw-bold" id="contracts-tab" data-bs-toggle="pill" data-bs-target="#contracts-pane" type="button" role="tab">
+            <i class="bi bi-file-earmark-check me-1"></i> Rental Contracts (@Model.MyContracts.Count)
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link rounded-pill fw-bold" id="inquiries-tab" data-bs-toggle="pill" data-bs-target="#inquiries-pane" type="button" role="tab">
+            <i class="bi bi-chat-dots me-1"></i> Inquiries (@Model.MyInquiries.Count)
+        </button>
+    </li>
+</ul>
+
+<!-- Tab Content Panes -->
+<div class="tab-content" id="userAccountTabsContent">
+    
+    <!-- 1. Site Visits Tab -->
+    <div class="tab-pane fade show active" id="visits-pane" role="tabpanel">
+        <div class="card border-0 shadow-sm rounded-4 bg-white p-4">
+            <h5 class="fw-bold mb-3 text-dark"><i class="bi bi-calendar-check text-primary me-2"></i> Your Scheduled Property Walkthroughs</h5>
+            
+            @if (Model.MyBookings.Count == 0)
+            {
+                <div class="text-center py-5 text-muted">
+                    <i class="bi bi-calendar-x fs-1 text-secondary mb-2"></i>
+                    <p class="mb-2">You haven't scheduled any site visits yet.</p>
+                    <a asp-area="Customer" asp-controller="Catalog" asp-action="Index" class="btn btn-sm btn-outline-primary rounded-pill">
+                        Explore Properties & Schedule Visit
+                    </a>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Property</th>
+                                <th>Scheduled Date</th>
+                                <th>Time Slot</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var b in Model.MyBookings)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="fw-bold text-dark">@(b.Property?.Title ?? "Luxury Property #" + b.PropertyId)</div>
+                                        <small class="text-muted"><i class="bi bi-geo-alt"></i> @(b.Property?.City ?? "Prime Location")</small>
+                                    </td>
+                                    <td>
+                                        <span class="fw-semibold text-primary"><i class="bi bi-calendar3 me-1"></i> @b.VisitDate.ToString("ddd, MMM dd, yyyy")</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-dark border px-2 py-1"><i class="bi bi-clock me-1"></i> @b.TimeSlot</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-success-subtle text-success px-3 py-1 rounded-pill fw-semibold">
+                                            <i class="bi bi-check-circle-fill me-1"></i> @b.Status
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a asp-area="Customer" asp-controller="Catalog" asp-action="Details" asp-route-id="@b.PropertyId" class="btn btn-sm btn-outline-primary rounded-pill">
+                                            View Property
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- 2. Token Payments Tab -->
+    <div class="tab-pane fade" id="payments-pane" role="tabpanel">
+        <div class="card border-0 shadow-sm rounded-4 bg-white p-4">
+            <h5 class="fw-bold mb-3 text-dark"><i class="bi bi-credit-card-2-front text-success me-2"></i> Token Reservation Escrow Deposits</h5>
+            
+            @if (Model.MyPayments.Count == 0)
+            {
+                <div class="text-center py-5 text-muted">
+                    <i class="bi bi-cash-stack fs-1 text-secondary mb-2"></i>
+                    <p class="mb-2">No token deposits recorded under your account.</p>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Receipt #</th>
+                                <th>Property</th>
+                                <th>Amount Deposited</th>
+                                <th>Method</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th class="text-end">Receipt</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var p in Model.MyPayments)
+                            {
+                                <tr>
+                                    <td class="fw-bold text-dark font-monospace">@p.ReceiptNumber</td>
+                                    <td>
+                                        <div class="fw-semibold text-dark">@(p.Property?.Title ?? "Property #" + p.PropertyId)</div>
+                                    </td>
+                                    <td class="fw-bold text-success">₹@p.Amount.ToString("N2")</td>
+                                    <td>
+                                        <span class="badge bg-light text-dark border">@p.PaymentMethod</span>
+                                    </td>
+                                    <td class="text-muted small">@p.PaymentDate.ToString("MMM dd, yyyy")</td>
+                                    <td>
+                                        <span class="badge bg-success-subtle text-success rounded-pill px-3 py-1">
+                                            <i class="bi bi-check-circle-fill me-1"></i> @p.Status
+                                        </span>
+                                    </td>
+                                    <td class="text-end">
+                                        <a asp-area="Customer" asp-controller="Payments" asp-action="Receipt" asp-route-paymentId="@p.Id" class="btn btn-sm btn-outline-success rounded-pill">
+                                            <i class="bi bi-receipt me-1"></i> View Receipt
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- 3. Rental Contracts Tab -->
+    <div class="tab-pane fade" id="contracts-pane" role="tabpanel">
+        <div class="card border-0 shadow-sm rounded-4 bg-white p-4">
+            <h5 class="fw-bold mb-3 text-dark"><i class="bi bi-file-earmark-text text-info me-2"></i> Executed Tenancy & Lease Agreements</h5>
+            
+            @if (Model.MyContracts.Count == 0)
+            {
+                <div class="text-center py-5 text-muted">
+                    <i class="bi bi-file-earmark-x fs-1 text-secondary mb-2"></i>
+                    <p class="mb-2">No rental contracts generated yet.</p>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Agreement #</th>
+                                <th>Property</th>
+                                <th>Term Period</th>
+                                <th>Monthly Rent</th>
+                                <th>Status</th>
+                                <th class="text-end">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var c in Model.MyContracts)
+                            {
+                                <tr>
+                                    <td class="fw-bold text-dark font-monospace">@c.ContractNumber</td>
+                                    <td>
+                                        <div class="fw-semibold text-dark">@(c.Property?.Title ?? "Property #" + c.PropertyId)</div>
+                                    </td>
+                                    <td class="small">
+                                        @c.StartDate.ToString("MMM dd, yyyy") &mdash; @c.EndDate.ToString("MMM dd, yyyy")
+                                    </td>
+                                    <td class="fw-bold text-primary">₹@c.MonthlyRent.ToString("N2")/mo</td>
+                                    <td>
+                                        <span class="badge bg-success-subtle text-success rounded-pill px-3 py-1">
+                                            <i class="bi bi-patch-check-fill me-1"></i> @c.Status
+                                        </span>
+                                    </td>
+                                    <td class="text-end">
+                                        <a asp-area="Customer" asp-controller="Contracts" asp-action="Details" asp-route-id="@c.Id" class="btn btn-sm btn-outline-primary rounded-pill">
+                                            <i class="bi bi-file-earmark-pdf me-1"></i> View Agreement
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- 4. Inquiries Tab -->
+    <div class="tab-pane fade" id="inquiries-pane" role="tabpanel">
+        <div class="card border-0 shadow-sm rounded-4 bg-white p-4">
+            <h5 class="fw-bold mb-3 text-dark"><i class="bi bi-chat-quote text-secondary me-2"></i> Property Inquiries & Messages</h5>
+            
+            @if (Model.MyInquiries.Count == 0)
+            {
+                <div class="text-center py-5 text-muted">
+                    <i class="bi bi-chat-left-dots fs-1 text-secondary mb-2"></i>
+                    <p class="mb-2">No property inquiries sent yet.</p>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Property</th>
+                                <th>Message</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var inq in Model.MyInquiries)
+                            {
+                                <tr>
+                                    <td class="fw-bold text-dark">@(inq.Property?.Title ?? "Property #" + inq.PropertyId)</td>
+                                    <td class="text-secondary small" style="max-width: 300px;">@inq.Message</td>
+                                    <td class="text-muted small">@inq.InquiryDate.ToString("MMM dd, yyyy")</td>
+                                    <td>
+                                        <span class="badge bg-info-subtle text-info rounded-pill px-3 py-1">
+                                            @inq.Status
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+
+</div>

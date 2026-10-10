@@ -1,0 +1,221 @@
+@model RealEstatePortal.Web.Areas.Admin.ViewModels.CommissionSummaryVM
+@{
+    ViewData["Title"] = "Monthly Commission Summary Report";
+}
+
+<!-- Report Header -->
+<div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div>
+            <span class="badge bg-success-subtle text-success fw-bold px-3 py-2 rounded-pill mb-2">
+                <i class="bi bi-cash-stack me-1 text-success"></i> Dashboard Report #2
+            </span>
+            <h3 class="fw-bold mb-1 text-dark">Monthly Commission Summary</h3>
+            <p class="text-muted mb-0">Brokerage and agent revenue distributions, deal volume settlements, and annual performance trends.</p>
+        </div>
+        <div class="d-flex gap-2 no-print">
+            <button type="button" class="btn btn-outline-secondary rounded-pill px-3" onclick="window.print();">
+                <i class="bi bi-printer-fill me-1"></i> Print Report
+            </button>
+            <a asp-action="Conversions" class="btn btn-primary rounded-pill px-3">
+                Next: Conversion Report <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card border-0 shadow-sm rounded-4 p-3 mb-4 bg-white no-print">
+    <form method="get" asp-action="Commissions" class="row g-2 align-items-center">
+        <div class="col-md-4">
+            <label class="form-label small fw-semibold text-secondary mb-1">Filter by Year</label>
+            <select name="year" class="form-select form-select-sm">
+                <!option value="2026" @(Model.SelectedYear == 2026 ? "selected" : "")>Calendar Year 2026</!option>
+                <!option value="2025" @(Model.SelectedYear == 2025 ? "selected" : "")>Calendar Year 2025</!option>
+            </select>
+        </div>
+        <div class="col-md-5">
+            <label class="form-label small fw-semibold text-secondary mb-1">Filter by Broker / Agent</label>
+            <select name="agent" class="form-select form-select-sm">
+                <option value="">All Agents & Brokers</option>
+                @foreach (var a in Model.AgentNames)
+                {
+                    if (Model.SelectedAgent == a)
+                    {
+                        <option value="@a" selected>@a</option>
+                    }
+                    else
+                    {
+                        <option value="@a">@a</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="col-md-3 d-flex gap-1 align-self-end">
+            <button type="submit" class="btn btn-primary btn-sm rounded-pill flex-fill">
+                <i class="bi bi-filter"></i> Apply Filter
+            </button>
+            <a asp-action="Commissions" class="btn btn-outline-secondary btn-sm rounded-pill">
+                <i class="bi bi-arrow-counterclockwise"></i>
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- Commission KPI Cards -->
+<div class="row g-3 mb-4">
+    <!-- Total Commission -->
+    <div class="col-6 col-md-3">
+        <div class="card metric-card bg-white p-4 h-100">
+            <span class="text-muted small fw-bold text-uppercase">Total Commission YTD</span>
+            <h3 class="fw-bold text-success mb-1 mt-2">₹@Model.TotalCommissionYearToDate.ToString("N0")</h3>
+            <small class="text-muted"><i class="bi bi-graph-up-arrow text-success me-1"></i> Earned from closed volume</small>
+        </div>
+    </div>
+
+    <!-- Total Deal Volume -->
+    <div class="col-6 col-md-3">
+        <div class="card metric-card bg-white p-4 h-100">
+            <span class="text-muted small fw-bold text-uppercase">Total Closed Volume</span>
+            <h3 class="fw-bold text-dark mb-1 mt-2">₹@Model.TotalDealVolume.ToString("N0")</h3>
+            <small class="text-muted">Total value of transactions</small>
+        </div>
+    </div>
+
+    <!-- Deals Closed -->
+    <div class="col-6 col-md-3">
+        <div class="card metric-card bg-white p-4 h-100">
+            <span class="text-muted small fw-bold text-uppercase">Deals Closed</span>
+            <h3 class="fw-bold text-primary mb-1 mt-2">@Model.TotalDealsClosed</h3>
+            <small class="text-muted">Sales & Rental Agreements</small>
+        </div>
+    </div>
+
+    <!-- Avg Commission -->
+    <div class="col-6 col-md-3">
+        <div class="card metric-card bg-white p-4 h-100">
+            <span class="text-muted small fw-bold text-uppercase">Average Payout / Deal</span>
+            <h3 class="fw-bold text-warning mb-1 mt-2">₹@Model.AverageCommissionPerDeal.ToString("N0")</h3>
+            <small class="text-muted">Per executed transaction</small>
+        </div>
+    </div>
+</div>
+
+<!-- Monthly Chart & Agent Performance -->
+<div class="row g-4 mb-4">
+    <!-- Monthly Commission Chart -->
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+            <h6 class="fw-bold text-dark mb-3"><i class="bi bi-bar-chart-fill text-success me-2"></i> Monthly Commission Earnings Trend (@Model.SelectedYear)</h6>
+            <div style="position: relative; height: 300px;">
+                <canvas id="monthlyCommissionChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Agent Leaderboard -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+            <h6 class="fw-bold text-dark mb-3"><i class="bi bi-trophy-fill text-warning me-2"></i> Agent Leaderboard</h6>
+            <div class="d-flex flex-column gap-3">
+                @foreach (var agent in Model.AgentSummaries)
+                {
+                    <div class="p-3 bg-light rounded-3 border">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="fw-bold text-dark mb-0">@agent.AgentName</h6>
+                                <div class="text-muted" style="font-size: 11px;">@agent.AgentEmail</div>
+                            </div>
+                            <span class="badge bg-success-subtle text-success fs-6 fw-bold">
+                                ₹@agent.TotalCommissionEarned.ToString("N0")
+                            </span>
+                        </div>
+                        <div class="d-flex justify-content-between text-muted small mt-2 pt-2 border-top">
+                            <span>Closed: <strong>@agent.ClosedDeals deals</strong></span>
+                            <span>Active: <strong>@agent.ActiveListings listings</strong></span>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Commission Settlement Transactions Table -->
+<div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
+    <div class="card-header bg-white p-3 border-bottom d-flex justify-content-between align-items-center">
+        <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-receipt-cutoff me-2 text-primary"></i> Commission Settlement Logs</h6>
+        <span class="text-muted small">@Model.RecentCommissionTransactions.Count settled transactions</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0 small">
+            <thead class="table-light">
+                <tr>
+                    <th>Ref ID</th>
+                    <th>Property Title</th>
+                    <th>Agent / Broker</th>
+                    <th>Transaction Type</th>
+                    <th>Deal Valuation</th>
+                    <th>Commission %</th>
+                    <th class="text-end pe-4">Commission Payout (₹)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var t in Model.RecentCommissionTransactions)
+                {
+                    <tr>
+                        <td class="font-monospace fw-bold text-secondary">@t.TransactionId</td>
+                        <td class="fw-bold text-dark">@t.PropertyTitle</td>
+                        <td>@t.AgentName</td>
+                        <td><span class="badge bg-light text-dark border">@t.Type</span></td>
+                        <td class="fw-semibold text-dark">₹@t.DealAmount.ToString("N0")</td>
+                        <td>@t.CommissionRate%</td>
+                        <td class="text-end pe-4 fw-bold text-success fs-6">₹@t.CommissionPayout.ToString("N2")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const ctx = document.getElementById('monthlyCommissionChart').getContext('2d');
+            const labels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MonthlyBreakdown.Select(m => m.MonthName)));
+            const dataValues = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MonthlyBreakdown.Select(m => m.CommissionEarned)));
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Commission Earned (₹)',
+                        data: dataValues,
+                        backgroundColor: '#10b981',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) { return '₹' + value.toLocaleString(); }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) { return ' Commission: ₹' + context.raw.toLocaleString(); }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+}

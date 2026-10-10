@@ -1,0 +1,166 @@
+@model RealEstatePortal.Web.Areas.Customer.ViewModels.ContractGenerationVM
+@{
+    ViewData["Title"] = "Generate Rental Lease Contract";
+}
+
+<div class="mb-4 p-4 rounded-4 shadow-sm bg-white border">
+    <span class="badge bg-success-subtle text-success fw-semibold px-3 py-2 rounded-pill mb-2">
+        <i class="bi bi-file-earmark-text-fill me-1"></i> Transaction: Digital Rental Contract Generator
+    </span>
+    <h2 class="fw-bold mb-1 text-dark">Generate Residential Lease Agreement</h2>
+    <p class="text-muted mb-0">Create legally binding digital lease contracts with automatic token deposit credit and cryptographic signature verification.</p>
+</div>
+
+<form asp-action="CreateContract" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="PropertyId" />
+    <input type="hidden" asp-for="TokenPaymentId" />
+
+    <div class="row g-4">
+        <!-- Left: Contract Generation Form -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+                <h5 class="fw-bold text-dark mb-3"><i class="bi bi-people-fill text-primary me-2"></i> Parties to the Agreement</h5>
+
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <!-- Tenant Section -->
+                <div class="p-3 bg-light rounded-3 mb-4">
+                    <h6 class="fw-bold text-secondary mb-3">1. Tenant / Lessee Information</h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="TenantName" class="form-label small fw-semibold text-secondary"></label>
+                            <input asp-for="TenantName" class="form-control" required />
+                            <span asp-validation-for="TenantName" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="TenantEmail" class="form-label small fw-semibold text-secondary"></label>
+                            <input asp-for="TenantEmail" type="email" class="form-control" required />
+                            <span asp-validation-for="TenantEmail" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="TenantPhone" class="form-label small fw-semibold text-secondary"></label>
+                            <input asp-for="TenantPhone" class="form-control" required />
+                            <span asp-validation-for="TenantPhone" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="TenantIdProof" class="form-label small fw-semibold text-secondary"></label>
+                            <input asp-for="TenantIdProof" class="form-control" required />
+                            <span asp-validation-for="TenantIdProof" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Landlord Section -->
+                <div class="p-3 bg-light rounded-3 mb-4">
+                    <h6 class="fw-bold text-secondary mb-3">2. Landlord / Lessor Information</h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="LandlordName" class="form-label small fw-semibold text-secondary"></label>
+                            <input asp-for="LandlordName" class="form-control" required />
+                            <span asp-validation-for="LandlordName" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="LandlordEmail" class="form-label small fw-semibold text-secondary"></label>
+                            <input asp-for="LandlordEmail" type="email" class="form-control" required />
+                            <span asp-validation-for="LandlordEmail" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lease Dates & Financials -->
+                <h5 class="fw-bold text-dark mb-3"><i class="bi bi-cash-coin text-success me-2"></i> Lease Term & Financials</h5>
+                <div class="p-3 bg-light rounded-3 mb-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="StartDate" class="form-label small fw-semibold text-secondary"></label>
+                            <input asp-for="StartDate" type="date" class="form-control" required />
+                            <span asp-validation-for="StartDate" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="EndDate" class="form-label small fw-semibold text-secondary"></label>
+                            <input asp-for="EndDate" type="date" class="form-control" required />
+                            <span asp-validation-for="EndDate" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="MonthlyRent" class="form-label small fw-semibold text-secondary"></label>
+                            <div class="input-group">
+                                <span class="input-group-text">₹</span>
+                                <input asp-for="MonthlyRent" class="form-control" required />
+                            </div>
+                            <span asp-validation-for="MonthlyRent" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="SecurityDeposit" class="form-label small fw-semibold text-secondary"></label>
+                            <div class="input-group">
+                                <span class="input-group-text">₹</span>
+                                <input asp-for="SecurityDeposit" class="form-control" required />
+                            </div>
+                            <span asp-validation-for="SecurityDeposit" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="TokenPaid" class="form-label small fw-semibold text-secondary"></label>
+                            <div class="input-group">
+                                <span class="input-group-text">₹</span>
+                                <input asp-for="TokenPaid" class="form-control text-success fw-bold" />
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <label asp-for="PaymentFrequency" class="form-label small fw-semibold text-secondary"></label>
+                            <select asp-for="PaymentFrequency" class="form-select" asp-items="Html.GetEnumSelectList<PaymentFrequency>()"></select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Terms & Conditions -->
+                <div class="mb-4">
+                    <label asp-for="TermsAndConditions" class="form-label fw-bold text-dark"></label>
+                    <textarea asp-for="TermsAndConditions" class="form-control font-monospace" rows="6" required></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-success btn-lg w-100 rounded-pill py-3 fw-bold shadow">
+                    <i class="bi bi-file-earmark-check-fill me-1"></i> Sign & Generate Binding Rental Contract
+                </button>
+            </div>
+        </div>
+
+        <!-- Right: Leased Property Context -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white sticky-top" style="top: 80px;">
+                <h5 class="fw-bold text-dark mb-3">Leased Property Asset</h5>
+
+                @if (Model.Property != null)
+                {
+                    <div class="mb-3">
+                        <img src="@Model.Property.PrimaryImageUrl" class="img-fluid rounded-3 shadow-sm mb-3" style="height: 180px; width: 100%; object-fit: cover;" alt="@Model.Property.Title">
+                        <h6 class="fw-bold text-dark mb-1">@Model.Property.Title</h6>
+                        <p class="text-muted small mb-0"><i class="bi bi-geo-alt-fill text-danger me-1"></i> @Model.Property.Address, @Model.Property.City, @Model.Property.State</p>
+                    </div>
+
+                    <div class="p-3 bg-light rounded-3 mb-3 small">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-secondary">Property Type:</span>
+                            <span class="fw-semibold">@Model.Property.PropertyType</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-secondary">Floor Space:</span>
+                            <span class="fw-semibold">@Model.Property.AreaSqFt Sq Ft</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-secondary">Assigned Broker:</span>
+                            <span class="fw-semibold">@Model.Property.AgentName</span>
+                        </div>
+                    </div>
+                }
+
+                <div class="p-3 bg-success-subtle text-success-emphasis rounded-3 border border-success-subtle small">
+                    <i class="bi bi-patch-check-fill me-1"></i> Upon completion, the property listing status will be updated to <strong>Rented</strong> and stored in the Property Status Ledger.
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

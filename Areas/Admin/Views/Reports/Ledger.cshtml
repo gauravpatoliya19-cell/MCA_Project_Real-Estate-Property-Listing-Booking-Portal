@@ -1,0 +1,218 @@
+@model RealEstatePortal.Web.Areas.Admin.ViewModels.PropertyStatusLedgerVM
+@{
+    ViewData["Title"] = "Property Status Ledger Report";
+}
+
+<!-- Report Header -->
+<div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div>
+            <span class="badge bg-warning-subtle text-dark fw-bold px-3 py-2 rounded-pill mb-2">
+                <i class="bi bi-journal-check me-1 text-warning"></i> Dashboard Report #1
+            </span>
+            <h3 class="fw-bold mb-1 text-dark">Property Status Ledger</h3>
+            <p class="text-muted mb-0">Comprehensive inventory lifecycle audit (Available &bull; Booked &bull; Rented &bull; Sold) with financial asset valuations.</p>
+        </div>
+        <div class="d-flex gap-2 no-print">
+            <button type="button" class="btn btn-outline-secondary rounded-pill px-3" onclick="window.print();">
+                <i class="bi bi-printer-fill me-1"></i> Print Ledger
+            </button>
+            <a asp-action="Commissions" class="btn btn-primary rounded-pill px-3">
+                Next: Commission Report <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Ledger Financial Summary Cards -->
+<div class="row g-3 mb-4">
+    <!-- Available Count -->
+    <div class="col-6 col-md-3">
+        <div class="card metric-card bg-white p-3 border-start border-success border-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="text-muted small fw-bold">AVAILABLE INVENTORY</span>
+                <span class="badge bg-success">@Model.TotalAvailable</span>
+            </div>
+            <h4 class="fw-bold text-dark mb-0">@Model.TotalAvailable Listings</h4>
+            <small class="text-success">Ready for client viewing</small>
+        </div>
+    </div>
+
+    <!-- Booked Count -->
+    <div class="col-6 col-md-3">
+        <div class="card metric-card bg-white p-3 border-start border-warning border-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="text-muted small fw-bold">BOOKED (ESCROW HOLD)</span>
+                <span class="badge bg-warning text-dark">@Model.TotalBooked</span>
+            </div>
+            <h4 class="fw-bold text-dark mb-0">@Model.TotalBooked Properties</h4>
+            <small class="text-muted">Token deposits received</small>
+        </div>
+    </div>
+
+    <!-- Rented Count -->
+    <div class="col-6 col-md-3">
+        <div class="card metric-card bg-white p-3 border-start border-info border-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="text-muted small fw-bold">RENTED (ACTIVE LEASES)</span>
+                <span class="badge bg-info">@Model.TotalRented</span>
+            </div>
+            <h4 class="fw-bold text-dark mb-0">@Model.TotalRented Leases</h4>
+            <small class="text-info">Yield: ₹@Model.TotalMonthlyRentalYield.ToString("N0")/mo</small>
+        </div>
+    </div>
+
+    <!-- Sold Count -->
+    <div class="col-6 col-md-3">
+        <div class="card metric-card bg-white p-3 border-start border-danger border-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="text-muted small fw-bold">CLOSED / SOLD</span>
+                <span class="badge bg-danger">@Model.TotalSold</span>
+            </div>
+            <h4 class="fw-bold text-dark mb-0">@Model.TotalSold Properties</h4>
+            <small class="text-muted">Sales finalized</small>
+        </div>
+    </div>
+</div>
+
+<!-- Extra Financial Badges -->
+<div class="card border-0 shadow-sm rounded-4 p-3 mb-4 bg-dark text-white">
+    <div class="row text-center g-3">
+        <div class="col-md-4">
+            <span class="text-white-50 small">Total Sales Portfolio Valuation</span>
+            <h4 class="fw-bold text-primary mb-0 mt-1">₹@Model.TotalPortfolioValue.ToString("N0")</h4>
+        </div>
+        <div class="col-md-4 border-start border-secondary">
+            <span class="text-white-50 small">Total Monthly Rental Yield Pipeline</span>
+            <h4 class="fw-bold text-info mb-0 mt-1">₹@Model.TotalMonthlyRentalYield.ToString("N0") / mo</h4>
+        </div>
+        <div class="col-md-4 border-start border-secondary">
+            <span class="text-white-50 small">Total Escrow Tokens Held in Trust</span>
+            <h4 class="fw-bold text-success mb-0 mt-1">₹@Model.TotalTokensEscrowed.ToString("N2")</h4>
+        </div>
+    </div>
+</div>
+
+<!-- Ledger Filter Controls -->
+<div class="card border-0 shadow-sm rounded-4 p-3 mb-4 bg-white no-print">
+    <form method="get" asp-action="Ledger" class="row g-2 align-items-center">
+        <div class="col-md-3">
+            <input type="text" name="search" value="@Model.SearchTerm" class="form-control form-control-sm" placeholder="Filter by title or broker...">
+        </div>
+        <div class="col-md-3">
+            <select name="status" class="form-select form-select-sm" asp-items="Html.GetEnumSelectList<PropertyStatus>()">
+                <option value="">All Statuses (Available, Booked, Rented, Sold)</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select name="listingType" class="form-select form-select-sm" asp-items="Html.GetEnumSelectList<ListingType>()">
+                <option value="">All Types (Rent & Sale)</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select name="city" class="form-select form-select-sm">
+                <option value="">All Cities</option>
+                @foreach (var c in Model.AvailableCities)
+                {
+                    <option value="@c">@c</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2 d-flex gap-1">
+            <button type="submit" class="btn btn-primary btn-sm rounded-pill flex-fill">
+                <i class="bi bi-filter"></i> Filter
+            </button>
+            <a asp-action="Ledger" class="btn btn-outline-secondary btn-sm rounded-pill">
+                <i class="bi bi-arrow-counterclockwise"></i>
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- Comprehensive Ledger Table -->
+<div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
+    <div class="card-header bg-white p-3 border-bottom d-flex justify-content-between align-items-center">
+        <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-table me-2 text-primary"></i> Inventory Status Ledger Records (@Model.LedgerItems.Count)</h6>
+        <span class="text-muted small">Generated on @DateTime.UtcNow.ToString("MMM dd, yyyy")</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0 small">
+            <thead class="table-light">
+                <tr>
+                    <th>Asset ID</th>
+                    <th>Property Title</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>List Price / Rent</th>
+                    <th>Status</th>
+                    <th>Visits</th>
+                    <th>Inquiries</th>
+                    <th>Escrow Tokens</th>
+                    <th>Broker</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.LedgerItems)
+                {
+                    <tr>
+                        <td class="font-monospace fw-bold text-secondary">#@item.PropertyId</td>
+                        <td>
+                            <a asp-controller="Properties" asp-action="Details" asp-route-id="@item.PropertyId" class="fw-bold text-dark text-decoration-none hover-primary">
+                                @item.Title
+                            </a>
+                        </td>
+                        <td>@item.City</td>
+                        <td>
+                            <span class="badge bg-light text-secondary border">@item.PropertyType</span>
+                            <span class="text-muted" style="font-size: 11px;">(@item.ListingType)</span>
+                        </td>
+                        <td class="fw-bold text-dark">
+                            ₹@item.Price.ToString("N0")
+                            @if (item.ListingType == ListingType.Rent)
+                            {
+                                <span class="text-muted" style="font-size: 10px;">/mo</span>
+                            }
+                        </td>
+                        <td>
+                            @{
+                                string statusBadge = item.Status switch
+                                {
+                                    PropertyStatus.Available => "bg-success",
+                                    PropertyStatus.Booked => "bg-warning text-dark",
+                                    PropertyStatus.Rented => "bg-info",
+                                    PropertyStatus.Sold => "bg-danger",
+                                    _ => "bg-secondary"
+                                };
+                            }
+                            <span class="badge @statusBadge px-2 py-1 rounded-pill">@item.Status</span>
+                        </td>
+                        <td class="text-center fw-semibold">@item.TotalSiteVisits</td>
+                        <td class="text-center fw-semibold">@item.InquiriesCount</td>
+                        <td class="fw-bold text-success">
+                            @if (item.TotalTokensCollected > 0)
+                            {
+                                <span>₹@item.TotalTokensCollected.ToString("N0")</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted fw-normal">&mdash;</span>
+                            }
+                        </td>
+                        <td>@item.AgentName</td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot class="table-light fw-bold">
+                <tr>
+                    <td colspan="4">Total Portfolio Ledger Metrics</td>
+                    <td>₹@Model.LedgerItems.Sum(i => i.Price).ToString("N0")</td>
+                    <td>@Model.LedgerItems.Count Assets</td>
+                    <td class="text-center">@Model.LedgerItems.Sum(i => i.TotalSiteVisits)</td>
+                    <td class="text-center">@Model.LedgerItems.Sum(i => i.InquiriesCount)</td>
+                    <td class="text-success">₹@Model.LedgerItems.Sum(i => i.TotalTokensCollected).ToString("N0")</td>
+                    <td>&mdash;</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
